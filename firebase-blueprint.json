@@ -1,0 +1,80 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and statistics",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "name": { "type": "string" },
+        "isAdmin": { "type": "boolean" },
+        "isPremium": { "type": "boolean" },
+        "avatarUrl": { "type": "string" },
+        "totalXP": { "type": "integer" },
+        "level": { "type": "integer" },
+        "currentStreak": { "type": "integer" },
+        "longestStreak": { "type": "integer" },
+        "promptTrackXP": { "type": "integer" },
+        "contextTrackXP": { "type": "integer" },
+        "lastLoginAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email", "name"]
+    },
+    "Chapter": {
+      "title": "Chapter",
+      "description": "A chapter in a learning track",
+      "type": "object",
+      "properties": {
+        "track": { "type": "string", "enum": ["PROMPT", "CONTEXT"] },
+        "order": { "type": "integer" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "icon": { "type": "string" },
+        "xpReward": { "type": "integer" },
+        "requiredXP": { "type": "integer" }
+      }
+    },
+    "Lesson": {
+      "title": "Lesson",
+      "description": "A lesson within a chapter",
+      "type": "object",
+      "properties": {
+        "chapterId": { "type": "string" },
+        "order": { "type": "integer" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "type": { "type": "string", "enum": ["THEORY", "PRACTICE", "CHALLENGE"] },
+        "xpReward": { "type": "integer" }
+      }
+    },
+    "Exercise": {
+      "title": "Exercise",
+      "description": "An exercise within a lesson",
+      "type": "object",
+      "properties": {
+        "lessonId": { "type": "string" },
+        "type": { "type": "string", "enum": ["MULTIPLE_CHOICE", "FREE_TEXT", "ERROR_DETECTION", "COMPARISON", "REAL_SCENARIO"] },
+        "question": { "type": "string" },
+        "difficulty": { "type": "string", "enum": ["BEGINNER", "INTERMEDIATE", "ADVANCED", "EXPERT"] }
+      }
+    },
+    "CoachMemory": {
+      "title": "CoachMemory",
+      "description": "Memory for the AI Coach Mia",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "conversationHistory": { "type": "array" },
+        "weaknesses": { "type": "array" },
+        "strengths": { "type": "array" }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": { "schema": "User", "description": "User profiles" },
+    "/chapters/{chapterId}": { "schema": "Chapter", "description": "Learning chapters" },
+    "/lessons/{lessonId}": { "schema": "Lesson", "description": "Lessons" },
+    "/exercises/{exerciseId}": { "schema": "Exercise", "description": "Exercises" },
+    "/coachMemory/{userId}": { "schema": "CoachMemory", "description": "Coach memory per user" }
+  }
+}

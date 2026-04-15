@@ -1,0 +1,6 @@
+{
+  "name": "PromptMeister",
+  "description": "Eine SaaS-Lernplattform für KI-Prompting und Kontextstrukturierung mit KI-Coach Mia.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": []
+}
