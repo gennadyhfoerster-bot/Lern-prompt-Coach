@@ -1,20 +1,64 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Lern Prompt Coach
 
-# Run and deploy your AI Studio app
+Ein professioneller KI-gestützter Lerncoach für Prompt Engineering mit interaktiven Übungen, Gamification, Sprachinteraktion und personalisiertem Feedback.
 
-This contains everything you need to run your app locally.
+## Features
 
-View your app in AI Studio: https://ai.studio/apps/e8e4e6d8-827e-456e-b4ae-44daccb1a2c9
+- KI-Lerncoach (Mia) mit personalisierten Antworten
+- Prompt-Bewertung mit Gemini
+- Fortschrittssystem mit XP, Leveln und Achievements
+- Firebase Authentication
+- Firestore-basierte Persistenz
+- Voice Input / Sprachinteraktion
+- Interaktive Lernmodule
+- Tool-Bereich für produktive KI-Hilfen
+- Moderne Premium-UI mit React + Tailwind
 
-## Run Locally
+## Tech Stack
 
-**Prerequisites:**  Node.js
+- React 19
+- TypeScript
+- Vite
+- Firebase
+- Google Gemini API
+- Zustand
+- Tailwind CSS
+- React Query
 
+## Setup
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+```bash
+npm install
+cp .env.example .env.local
+npm run dev
+```
+
+## Required Environment Variables
+
+```env
+GEMINI_API_KEY=your_key
+FIREBASE_API_KEY=...
+FIREBASE_AUTH_DOMAIN=...
+FIREBASE_PROJECT_ID=...
+FIREBASE_STORAGE_BUCKET=...
+FIREBASE_MESSAGING_SENDER_ID=...
+FIREBASE_APP_ID=...
+```
+
+## Quality Standards
+
+```bash
+npm run check
+```
+
+## Roadmap
+
+- Unit Tests
+- E2E Tests
+- Admin analytics dashboard
+- Adaptive learning recommendations
+- Multi-model AI backend abstraction
+
+## License
+
+Private / Custom
