@@ -19,7 +19,8 @@ import {
   ChevronRight, 
   Play,
   Mic,
-  MessageSquare
+  MessageSquare,
+  Sparkles
 } from 'lucide-react';
 import { listen } from './lib/voice';
 import { getMiaResponse, evaluateExercise } from './lib/gemini';
@@ -36,8 +37,16 @@ import { AchievementToast } from './components/ui/AchievementToast';
 import { AnimatedProgressBar } from './components/ui/AnimatedProgressBar';
 import { achievementEngine, Achievement, ACHIEVEMENTS } from './lib/achievementEngine';
 import { ToolsLayout } from './features/tools/ToolsLayout';
+import { PromptStudioView } from './features/prompt-studio/PromptStudioView';
+import { ArenaView } from './features/arena/ArenaView';
+import { EvaluationLabView } from './features/evaluation/EvaluationLabView';
+import { PromptOptimizerView } from './features/optimizer/PromptOptimizerView';
+import { MasterStackBuilderView } from './features/master-stack/MasterStackBuilderView';
+import { GoldenSetManagerView } from './features/quality/GoldenSetManagerView';
+import { RegressionRunnerView } from './features/quality/RegressionRunnerView';
+import { EvaluationHistoryView } from './features/quality/EvaluationHistoryView';
 
-type View = 'dashboard' | 'learn' | 'settings' | 'chat' | 'tools' | 'profile';
+type View = 'dashboard' | 'learn' | 'settings' | 'chat' | 'tools' | 'prompt-studio' | 'arena' | 'evaluation' | 'optimizer' | 'master-stack' | 'golden-sets' | 'regression' | 'quality-history' | 'profile' | 'lesson-detail';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -334,6 +343,14 @@ export default function App() {
             {currentView === 'lesson-detail' && <LearnView user={user} lessonId={selectedLessonId} onComplete={handleCompleteLesson} onBack={() => setCurrentView('learn')} />}
             {currentView === 'chat' && <ChatView user={user} onBack={() => setCurrentView('dashboard')} />}
             {currentView === 'tools' && <ToolsView onBack={() => setCurrentView('dashboard')} onUseTool={handleUseTool} />}
+            {currentView === 'prompt-studio' && <PromptStudioView onBack={() => setCurrentView('dashboard')} />}
+            {currentView === 'arena' && <ArenaView onBack={() => setCurrentView('dashboard')} />}
+            {currentView === 'evaluation' && <EvaluationLabView onBack={() => setCurrentView('dashboard')} />}
+            {currentView === 'optimizer' && <PromptOptimizerView onBack={() => setCurrentView('dashboard')} />}
+            {currentView === 'master-stack' && <MasterStackBuilderView onBack={() => setCurrentView('dashboard')} />}
+            {currentView === 'golden-sets' && <GoldenSetManagerView onBack={() => setCurrentView('dashboard')} />}
+            {currentView === 'regression' && <RegressionRunnerView onBack={() => setCurrentView('dashboard')} />}
+            {currentView === 'quality-history' && <EvaluationHistoryView onBack={() => setCurrentView('dashboard')} />}
             {currentView === 'profile' && <ProfileView user={user} onBack={() => setCurrentView('dashboard')} />}
             {currentView === 'settings' && <SettingsView onBack={() => setCurrentView('dashboard')} />}
           </>
@@ -876,6 +893,14 @@ function Sidebar({ currentView, setView, onSignOut }: { currentView: View, setVi
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'learn', label: 'Lernpfade', icon: BookOpen },
     { id: 'tools', label: 'Werkzeuge', icon: Zap },
+    { id: 'prompt-studio', label: 'Master Prompt Studio', icon: Sparkles },
+    { id: 'arena', label: 'Multi Model Arena', icon: Play },
+    { id: 'evaluation', label: 'Evaluation Lab', icon: Trophy },
+    { id: 'optimizer', label: 'Prompt Optimizer', icon: Sparkles },
+    { id: 'master-stack', label: 'Master Stack Builder', icon: Zap },
+    { id: 'golden-sets', label: 'Golden Test Sets', icon: BookOpen },
+    { id: 'regression', label: 'Regression Runner', icon: Play },
+    { id: 'quality-history', label: 'Quality History', icon: Trophy },
     { id: 'chat', label: 'Mia Chat', icon: MessageSquare },
     { id: 'profile', label: 'Profil', icon: Trophy },
     { id: 'settings', label: 'Einstellungen', icon: Settings },
