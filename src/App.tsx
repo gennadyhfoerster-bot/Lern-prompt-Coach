@@ -19,7 +19,8 @@ import {
   ChevronRight, 
   Play,
   Mic,
-  MessageSquare
+  MessageSquare,
+  Sparkles
 } from 'lucide-react';
 import { listen } from './lib/voice';
 import { getMiaResponse, evaluateExercise } from './lib/gemini';
@@ -36,8 +37,9 @@ import { AchievementToast } from './components/ui/AchievementToast';
 import { AnimatedProgressBar } from './components/ui/AnimatedProgressBar';
 import { achievementEngine, Achievement, ACHIEVEMENTS } from './lib/achievementEngine';
 import { ToolsLayout } from './features/tools/ToolsLayout';
+import { PromptStudioView } from './features/prompt-studio/PromptStudioView';
 
-type View = 'dashboard' | 'learn' | 'settings' | 'chat' | 'tools' | 'profile';
+type View = 'dashboard' | 'learn' | 'settings' | 'chat' | 'tools' | 'prompt-studio' | 'profile' | 'lesson-detail';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -334,6 +336,7 @@ export default function App() {
             {currentView === 'lesson-detail' && <LearnView user={user} lessonId={selectedLessonId} onComplete={handleCompleteLesson} onBack={() => setCurrentView('learn')} />}
             {currentView === 'chat' && <ChatView user={user} onBack={() => setCurrentView('dashboard')} />}
             {currentView === 'tools' && <ToolsView onBack={() => setCurrentView('dashboard')} onUseTool={handleUseTool} />}
+            {currentView === 'prompt-studio' && <PromptStudioView onBack={() => setCurrentView('dashboard')} />}
             {currentView === 'profile' && <ProfileView user={user} onBack={() => setCurrentView('dashboard')} />}
             {currentView === 'settings' && <SettingsView onBack={() => setCurrentView('dashboard')} />}
           </>
@@ -876,6 +879,7 @@ function Sidebar({ currentView, setView, onSignOut }: { currentView: View, setVi
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'learn', label: 'Lernpfade', icon: BookOpen },
     { id: 'tools', label: 'Werkzeuge', icon: Zap },
+    { id: 'prompt-studio', label: 'Master Prompt Studio', icon: Sparkles },
     { id: 'chat', label: 'Mia Chat', icon: MessageSquare },
     { id: 'profile', label: 'Profil', icon: Trophy },
     { id: 'settings', label: 'Einstellungen', icon: Settings },
