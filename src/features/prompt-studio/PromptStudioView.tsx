@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { motion } from 'motion/react';
 import {
   Search,
@@ -16,6 +16,7 @@ import {
   Save,
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { getMiaResponse } from '../../lib/gemini';
 import {
   CATEGORIES,
   MASTER_PROMPTS,
@@ -75,6 +76,8 @@ export function PromptStudioView({ onBack }: { onBack: () => void }) {
   const [idea, setIdea] = useState('');
   const [compiledPrompt, setCompiledPrompt] = useState('');
   const [copied, setCopied] = useState(false);
+  const [runOutput, setRunOutput] = useState('');
+  const [isRunning, setIsRunning] = useState(false);
   const [favorites, setFavorites] = useState<string[]>(() => {
     try {
       return JSON.parse(localStorage.getItem('master-prompt-favorites') || '[]');
@@ -134,6 +137,24 @@ export function PromptStudioView({ onBack }: { onBack: () => void }) {
     setCopied(true);
     toast.success('Prompt kopiert');
     window.setTimeout(() => setCopied(false), 1500);
+  };
+
+  const handleRun = async () => {
+    if (!compiledPrompt) return;
+    setIsRunning(true);
+    try {
+      const result = await getMiaResponse(
+        `Führe den folgenden Prompt als Arbeitsauftrag aus. Antworte auf Deutsch und liefere nur das Ergebnis des Auftrags:\n\n${compiledPrompt}`,
+        {},
+        {}
+      );
+      setRunOutput(result.message);
+      toast.success('Prompt erfolgreich ausgeführt');
+    } catch {
+      toast.error('Prompt konnte nicht ausgeführt werden');
+    } finally {
+      setIsRunning(false);
+    }
   };
 
   const handleSave = () => {
@@ -334,16 +355,24 @@ export function PromptStudioView({ onBack }: { onBack: () => void }) {
               <button onClick={handleCopy} disabled={!compiledPrompt} className="btn-secondary-dynamic disabled:opacity-40">
                 {copied ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />} Kopieren
               </button>
-              <button disabled={!compiledPrompt} className="btn-primary-dynamic disabled:opacity-40" title="Nächste Ausbaustufe: Prompt Runner">
-                <Play className="w-4 h-4" /> Run
+              <button onClick={handleRun} disabled={!compiledPrompt || isRunning} className="btn-primary-dynamic disabled:opacity-40">
+                <Play className="w-4 h-4" /> {isRunning ? 'Running...' : 'Run'}
               </button>
             </div>
           </div>
 
           {compiledPrompt ? (
-            <pre className="whitespace-pre-wrap font-mono text-sm leading-7 bg-black/25 border border-white/10 rounded-2xl p-5 overflow-x-auto">
-              {compiledPrompt}
-            </pre>
+            <div className="space-y-5">
+              <pre className="whitespace-pre-wrap font-mono text-sm leading-7 bg-black/25 border border-white/10 rounded-2xl p-5 overflow-x-auto">
+                {compiledPrompt}
+              </pre>
+              {runOutput && (
+                <div className="rounded-2xl border border-success/20 bg-success/5 p-5">
+                  <div className="text-[10px] font-black uppercase tracking-[0.22em] text-success mb-3">RUN OUTPUT · GEMINI</div>
+                  <p className="whitespace-pre-wrap text-sm leading-7">{runOutput}</p>
+                </div>
+              )}
+            </div>
           ) : (
             <div className="min-h-[250px] rounded-2xl border border-dashed border-white/10 grid place-items-center text-center p-8">
               <div>
@@ -366,7 +395,7 @@ function SelectBox({
   values,
   onChange,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
   value: string;
   values: readonly string[];
