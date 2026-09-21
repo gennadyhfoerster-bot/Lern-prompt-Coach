@@ -11,6 +11,7 @@ export function ArenaView({ onBack }: { onBack: () => void }) {
   const [selected, setSelected] = useState<string[]>(DEFAULT_ARENA_MODELS);
   const [results, setResults] = useState<ArenaRun[]>([]);
   const [running, setRunning] = useState(false);
+  const [executionMode, setExecutionMode] = useState<'parallel' | 'sequential'>('sequential');
 
   const selectedModels = useMemo(
     () => MODEL_PROFILES.filter((model) => selected.includes(model.id)),
@@ -29,26 +30,35 @@ export function ArenaView({ onBack }: { onBack: () => void }) {
     setRunning(true);
     setResults([]);
 
-    const settled = await Promise.allSettled(
-      selected.map((modelId) => runArenaPrompt(modelId, prompt)),
-    );
+    const executeOne = async (modelId: string): Promise<ArenaRun> => {
+      const model = MODEL_PROFILES.find((item) => item.id === modelId)!;
+      try {
+        return await runArenaPrompt(modelId, prompt);
+      } catch (error) {
+        return {
+          modelId: model.id,
+          modelName: model.name,
+          provider: model.provider,
+          output: '',
+          latencyMs: 0,
+          usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
+          error: error instanceof Error ? error.message : 'Unbekannter Fehler',
+        };
+      }
+    };
 
-    const nextResults = settled.map((entry, index) => {
-      const model = MODEL_PROFILES.find((item) => item.id === selected[index])!;
-      return entry.status === 'fulfilled'
-        ? entry.value
-        : {
-            modelId: model.id,
-            modelName: model.name,
-            provider: model.provider,
-            output: '',
-            latencyMs: 0,
-            usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
-            error: entry.reason instanceof Error ? entry.reason.message : 'Unbekannter Fehler',
-          };
-    });
+    let nextResults: ArenaRun[] = [];
 
-    setResults(nextResults);
+    if (executionMode === 'sequential') {
+      for (const modelId of selected) {
+        const result = await executeOne(modelId);
+        nextResults = [...nextResults, result];
+        setResults(nextResults);
+      }
+    } else {
+      nextResults = await Promise.all(selected.map(executeOne));
+      setResults(nextResults);
+    }
     localStorage.setItem('arena-latest-run', JSON.stringify({
       prompt,
       results: nextResults,
@@ -83,8 +93,22 @@ export function ArenaView({ onBack }: { onBack: () => void }) {
                 className="mt-4 w-full min-h-52 bg-bg-elevated border border-border rounded-2xl p-5 outline-none focus:border-primary resize-y"
                 placeholder="Beispiel: Erkläre mir closures in JavaScript und gib danach eine kleine Übung..."
               />
-              <button onClick={runArena} disabled={running} className="btn-primary-dynamic w-full mt-4 py-4 disabled:opacity-50">
-                <Play className="w-4 h-4" /> {running ? 'Arena läuft...' : 'Arena starten'}
+              <div className="grid grid-cols-2 gap-2 mt-4">
+                <button
+                  onClick={() => setExecutionMode('sequential')}
+                  className={`px-3 py-3 rounded-xl border text-xs font-black transition-all ${executionMode === 'sequential' ? 'bg-primary/15 border-primary/50 text-primary' : 'bg-white/5 border-white/10 text-text-secondary'}`}
+                >
+                  Low-RAM · Sequential
+                </button>
+                <button
+                  onClick={() => setExecutionMode('parallel')}
+                  className={`px-3 py-3 rounded-xl border text-xs font-black transition-all ${executionMode === 'parallel' ? 'bg-primary/15 border-primary/50 text-primary' : 'bg-white/5 border-white/10 text-text-secondary'}`}
+                >
+                  Fast · Parallel
+                </button>
+              </div>
+              <button onClick={runArena} disabled={running} className="btn-primary-dynamic w-full mt-3 py-4 disabled:opacity-50">
+                <Play className="w-4 h-4" /> {running ? (executionMode === 'sequential' ? 'Modelle laufen nacheinander...' : 'Arena läuft parallel...') : 'Arena starten'}
               </button>
             </div>
 
