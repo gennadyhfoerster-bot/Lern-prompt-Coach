@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Copy, History, Sparkles, WandSparkles } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { optimizePromptWithGemini, type PromptOptimization } from '../../lib/gemini';
+import { optimizePromptWithGemini, type ArenaEvaluation, type PromptOptimization } from '../../lib/gemini';
 
 type OptimizerVersion = {
   id: string;
@@ -12,8 +12,22 @@ type OptimizerVersion = {
 };
 
 export function PromptOptimizerView({ onBack }: { onBack: () => void }) {
-  const [original, setOriginal] = useState('');
-  const [goal, setGoal] = useState('Mehr Klarheit, Robustheit und reproduzierbare Ergebnisse.');
+  const latestEvaluation = (() => {
+    try {
+      const raw = localStorage.getItem('arena-latest-evaluation');
+      if (!raw) return null;
+      return JSON.parse(raw) as { prompt?: string; evaluation?: ArenaEvaluation };
+    } catch {
+      return null;
+    }
+  })();
+
+  const [original, setOriginal] = useState(latestEvaluation?.prompt || '');
+  const [goal, setGoal] = useState(
+    latestEvaluation?.evaluation
+      ? 'Behebe gezielt die Schwächen aus der letzten Arena-Evaluation.'
+      : 'Mehr Klarheit, Robustheit und reproduzierbare Ergebnisse.'
+  );
   const [result, setResult] = useState<PromptOptimization | null>(null);
   const [running, setRunning] = useState(false);
   const [versions, setVersions] = useState<OptimizerVersion[]>(() => JSON.parse(localStorage.getItem('prompt-optimizer-versions') || '[]'));
@@ -22,7 +36,7 @@ export function PromptOptimizerView({ onBack }: { onBack: () => void }) {
     if (!original.trim()) return toast.error('Füge zuerst einen Prompt ein.');
     setRunning(true);
     try {
-      const next = await optimizePromptWithGemini(original, goal, null);
+      const next = await optimizePromptWithGemini(original, goal, latestEvaluation?.evaluation || null);
       setResult(next);
       const version: OptimizerVersion = { id: crypto.randomUUID(), original, optimized: next.optimizedPrompt, goal, createdAt: new Date().toISOString() };
       const nextVersions = [version, ...versions].slice(0, 20);
