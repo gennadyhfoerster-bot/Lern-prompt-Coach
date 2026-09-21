@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { Activity, BarChart3, Clock3, History, ShieldCheck } from 'lucide-react';
 import { loadRegressionRuns } from './qualityStore';
 
@@ -53,7 +53,7 @@ export function EvaluationHistoryView({ onBack }: { onBack: () => void }) {
   );
 }
 
-function Metric({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function Metric({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return <div className="bento-card"><div className="flex items-center gap-2 text-text-secondary">{icon}<span className="text-xs font-black uppercase tracking-widest">{label}</span></div><div className="text-5xl font-black mt-3">{value}</div></div>;
 }
 
