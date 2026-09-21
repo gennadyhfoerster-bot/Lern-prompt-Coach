@@ -33,22 +33,27 @@ export function ArenaView({ onBack }: { onBack: () => void }) {
       selected.map((modelId) => runArenaPrompt(modelId, prompt)),
     );
 
-    setResults(
-      settled.map((entry, index) => {
-        const model = MODEL_PROFILES.find((item) => item.id === selected[index])!;
-        return entry.status === 'fulfilled'
-          ? entry.value
-          : {
-              modelId: model.id,
-              modelName: model.name,
-              provider: model.provider,
-              output: '',
-              latencyMs: 0,
-              usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
-              error: entry.reason instanceof Error ? entry.reason.message : 'Unbekannter Fehler',
-            };
-      }),
-    );
+    const nextResults = settled.map((entry, index) => {
+      const model = MODEL_PROFILES.find((item) => item.id === selected[index])!;
+      return entry.status === 'fulfilled'
+        ? entry.value
+        : {
+            modelId: model.id,
+            modelName: model.name,
+            provider: model.provider,
+            output: '',
+            latencyMs: 0,
+            usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
+            error: entry.reason instanceof Error ? entry.reason.message : 'Unbekannter Fehler',
+          };
+    });
+
+    setResults(nextResults);
+    localStorage.setItem('arena-latest-run', JSON.stringify({
+      prompt,
+      results: nextResults,
+      createdAt: new Date().toISOString(),
+    }));
     setRunning(false);
   };
 
