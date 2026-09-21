@@ -39,8 +39,11 @@ import { achievementEngine, Achievement, ACHIEVEMENTS } from './lib/achievementE
 import { ToolsLayout } from './features/tools/ToolsLayout';
 import { PromptStudioView } from './features/prompt-studio/PromptStudioView';
 import { ArenaView } from './features/arena/ArenaView';
+import { EvaluationLabView } from './features/evaluation/EvaluationLabView';
+import { PromptOptimizerView } from './features/optimizer/PromptOptimizerView';
+import { MasterStackBuilderView } from './features/master-stack/MasterStackBuilderView';
 
-type View = 'dashboard' | 'learn' | 'settings' | 'chat' | 'tools' | 'prompt-studio' | 'arena' | 'profile' | 'lesson-detail';
+type View = 'dashboard' | 'learn' | 'settings' | 'chat' | 'tools' | 'prompt-studio' | 'arena' | 'evaluation' | 'optimizer' | 'master-stack' | 'profile' | 'lesson-detail';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -339,6 +342,9 @@ export default function App() {
             {currentView === 'tools' && <ToolsView onBack={() => setCurrentView('dashboard')} onUseTool={handleUseTool} />}
             {currentView === 'prompt-studio' && <PromptStudioView onBack={() => setCurrentView('dashboard')} />}
             {currentView === 'arena' && <ArenaView onBack={() => setCurrentView('dashboard')} />}
+            {currentView === 'evaluation' && <EvaluationLabView onBack={() => setCurrentView('dashboard')} />}
+            {currentView === 'optimizer' && <PromptOptimizerView onBack={() => setCurrentView('dashboard')} />}
+            {currentView === 'master-stack' && <MasterStackBuilderView onBack={() => setCurrentView('dashboard')} />}
             {currentView === 'profile' && <ProfileView user={user} onBack={() => setCurrentView('dashboard')} />}
             {currentView === 'settings' && <SettingsView onBack={() => setCurrentView('dashboard')} />}
           </>
@@ -883,6 +889,9 @@ function Sidebar({ currentView, setView, onSignOut }: { currentView: View, setVi
     { id: 'tools', label: 'Werkzeuge', icon: Zap },
     { id: 'prompt-studio', label: 'Master Prompt Studio', icon: Sparkles },
     { id: 'arena', label: 'Multi Model Arena', icon: Play },
+    { id: 'evaluation', label: 'Evaluation Lab', icon: Trophy },
+    { id: 'optimizer', label: 'Prompt Optimizer', icon: Sparkles },
+    { id: 'master-stack', label: 'Master Stack Builder', icon: Zap },
     { id: 'chat', label: 'Mia Chat', icon: MessageSquare },
     { id: 'profile', label: 'Profil', icon: Trophy },
     { id: 'settings', label: 'Einstellungen', icon: Settings },
