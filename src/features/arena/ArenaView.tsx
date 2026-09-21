@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Activity, CheckCircle2, Cpu, Gauge, Play, Server, Timer, XCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { DEFAULT_ARENA_MODELS, MODEL_PROFILES } from '../../config/models';
@@ -158,7 +158,7 @@ export function ArenaView({ onBack }: { onBack: () => void }) {
   );
 }
 
-function Metric({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function Metric({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
     <div className="p-3 rounded-xl bg-white/5 border border-white/10">
       <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-secondary">{icon}{label}</div>
