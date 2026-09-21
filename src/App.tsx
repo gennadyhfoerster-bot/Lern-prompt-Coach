@@ -42,8 +42,11 @@ import { ArenaView } from './features/arena/ArenaView';
 import { EvaluationLabView } from './features/evaluation/EvaluationLabView';
 import { PromptOptimizerView } from './features/optimizer/PromptOptimizerView';
 import { MasterStackBuilderView } from './features/master-stack/MasterStackBuilderView';
+import { GoldenSetManagerView } from './features/quality/GoldenSetManagerView';
+import { RegressionRunnerView } from './features/quality/RegressionRunnerView';
+import { EvaluationHistoryView } from './features/quality/EvaluationHistoryView';
 
-type View = 'dashboard' | 'learn' | 'settings' | 'chat' | 'tools' | 'prompt-studio' | 'arena' | 'evaluation' | 'optimizer' | 'master-stack' | 'profile' | 'lesson-detail';
+type View = 'dashboard' | 'learn' | 'settings' | 'chat' | 'tools' | 'prompt-studio' | 'arena' | 'evaluation' | 'optimizer' | 'master-stack' | 'golden-sets' | 'regression' | 'quality-history' | 'profile' | 'lesson-detail';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -345,6 +348,9 @@ export default function App() {
             {currentView === 'evaluation' && <EvaluationLabView onBack={() => setCurrentView('dashboard')} />}
             {currentView === 'optimizer' && <PromptOptimizerView onBack={() => setCurrentView('dashboard')} />}
             {currentView === 'master-stack' && <MasterStackBuilderView onBack={() => setCurrentView('dashboard')} />}
+            {currentView === 'golden-sets' && <GoldenSetManagerView onBack={() => setCurrentView('dashboard')} />}
+            {currentView === 'regression' && <RegressionRunnerView onBack={() => setCurrentView('dashboard')} />}
+            {currentView === 'quality-history' && <EvaluationHistoryView onBack={() => setCurrentView('dashboard')} />}
             {currentView === 'profile' && <ProfileView user={user} onBack={() => setCurrentView('dashboard')} />}
             {currentView === 'settings' && <SettingsView onBack={() => setCurrentView('dashboard')} />}
           </>
@@ -892,6 +898,9 @@ function Sidebar({ currentView, setView, onSignOut }: { currentView: View, setVi
     { id: 'evaluation', label: 'Evaluation Lab', icon: Trophy },
     { id: 'optimizer', label: 'Prompt Optimizer', icon: Sparkles },
     { id: 'master-stack', label: 'Master Stack Builder', icon: Zap },
+    { id: 'golden-sets', label: 'Golden Test Sets', icon: BookOpen },
+    { id: 'regression', label: 'Regression Runner', icon: Play },
+    { id: 'quality-history', label: 'Quality History', icon: Trophy },
     { id: 'chat', label: 'Mia Chat', icon: MessageSquare },
     { id: 'profile', label: 'Profil', icon: Trophy },
     { id: 'settings', label: 'Einstellungen', icon: Settings },
