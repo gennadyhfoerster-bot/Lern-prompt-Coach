@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { BarChart3, CheckCircle2, FlaskConical, Gauge, Sparkles, Target, TimerReset } from 'lucide-react';
+import { BarChart3, CheckCircle2, FlaskConical, Gauge, Sparkles, Target } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { evaluateArenaOutput, type ArenaEvaluation } from '../../lib/gemini';
 
@@ -13,9 +13,20 @@ type SavedEvaluation = {
 };
 
 export function EvaluationLabView({ onBack }: { onBack: () => void }) {
-  const [prompt, setPrompt] = useState('');
-  const [output, setOutput] = useState('');
-  const [modelName, setModelName] = useState('Arena Model');
+  const latestArena = (() => {
+    try {
+      const raw = localStorage.getItem('arena-latest-run');
+      if (!raw) return null;
+      return JSON.parse(raw) as { prompt?: string; results?: Array<{ modelName?: string; output?: string; error?: string }> };
+    } catch {
+      return null;
+    }
+  })();
+  const firstSuccessful = latestArena?.results?.find((item) => item.output && !item.error);
+
+  const [prompt, setPrompt] = useState(latestArena?.prompt || '');
+  const [output, setOutput] = useState(firstSuccessful?.output || '');
+  const [modelName, setModelName] = useState(firstSuccessful?.modelName || 'Arena Model');
   const [evaluation, setEvaluation] = useState<ArenaEvaluation | null>(null);
   const [running, setRunning] = useState(false);
 
@@ -43,6 +54,7 @@ export function EvaluationLabView({ onBack }: { onBack: () => void }) {
         createdAt: new Date().toISOString(),
       };
       localStorage.setItem('arena-evaluations', JSON.stringify([entry, ...saved].slice(0, 25)));
+      localStorage.setItem('arena-latest-evaluation', JSON.stringify(entry));
       toast.success('Evaluation abgeschlossen');
     } catch {
       toast.error('Evaluation fehlgeschlagen');
