@@ -167,3 +167,109 @@ Antworte als JSON mit den Feldern: message (deine Antwort), emotion (happy, thou
     emotion: "concerned"
   });
 };
+
+
+export type ArenaEvaluation = {
+  overallScore: number;
+  clarity: number;
+  relevance: number;
+  completeness: number;
+  instructionFollowing: number;
+  robustness: number;
+  strengths: string[];
+  weaknesses: string[];
+  recommendation: string;
+};
+
+export const evaluateArenaOutput = async (
+  prompt: string,
+  output: string,
+  modelName: string
+): Promise<ArenaEvaluation> => {
+  const response = await ai.models.generateContent({
+    model: "gemini-3-flash-preview",
+    contents: `PROMPT:\n${truncate(prompt, 3500)}\n\nMODELL: ${modelName}\n\nANTWORT:\n${truncate(output, 7000)}`,
+    config: {
+      systemInstruction: `Du bist der neutrale Evaluation Engine von PromptMeister.
+Bewerte ausschließlich die Qualität der vorliegenden Modellantwort relativ zum gegebenen Prompt.
+Nutze für clarity, relevance, completeness, instructionFollowing und robustness jeweils 0 bis 100.
+overallScore ist ein nachvollziehbarer Gesamtscore von 0 bis 100.
+Robustness bedeutet: sinnvolle Annahmen, erkennbare Grenzen, keine unnötigen Erfindungen und praktisch nutzbare Ausgabe.
+Antworte nur als JSON.`,
+      responseMimeType: "application/json",
+      maxOutputTokens: 1400,
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          overallScore: { type: Type.NUMBER },
+          clarity: { type: Type.NUMBER },
+          relevance: { type: Type.NUMBER },
+          completeness: { type: Type.NUMBER },
+          instructionFollowing: { type: Type.NUMBER },
+          robustness: { type: Type.NUMBER },
+          strengths: { type: Type.ARRAY, items: { type: Type.STRING } },
+          weaknesses: { type: Type.ARRAY, items: { type: Type.STRING } },
+          recommendation: { type: Type.STRING }
+        }
+      }
+    }
+  });
+
+  return safeJsonParse(response.text || '{}', {
+    overallScore: 0,
+    clarity: 0,
+    relevance: 0,
+    completeness: 0,
+    instructionFollowing: 0,
+    robustness: 0,
+    strengths: [],
+    weaknesses: [],
+    recommendation: "Evaluation fehlgeschlagen."
+  });
+};
+
+export type PromptOptimization = {
+  optimizedPrompt: string;
+  changes: string[];
+  rationale: string;
+  predictedImpact: string;
+};
+
+export const optimizePromptWithGemini = async (
+  originalPrompt: string,
+  goal: string,
+  evaluation?: ArenaEvaluation | null
+): Promise<PromptOptimization> => {
+  const response = await ai.models.generateContent({
+    model: "gemini-3-flash-preview",
+    contents: `ZIEL:\n${truncate(goal || 'Verbessere Präzision, Robustheit und Wiederverwendbarkeit.', 1800)}
+\n\nORIGINAL PROMPT:\n${truncate(originalPrompt, 7000)}
+\n\nOPTIONALE EVALUATION:\n${evaluation ? JSON.stringify(evaluation).substring(0, 3500) : 'Keine Evaluation vorhanden.'}`,
+    config: {
+      systemInstruction: `Du bist der Prompt Optimizer von PromptMeister.
+Verbessere den Prompt, ohne sein eigentliches Ziel zu verändern.
+Mache Anforderungen überprüfbar, reduziere Mehrdeutigkeit, ergänze sinnvolle Constraints,
+definiere einen klaren Output und entferne unnötige Wiederholungen.
+Wenn Evaluation vorliegt, behebe gezielt deren Schwächen.
+Antworte nur als JSON.`,
+      responseMimeType: "application/json",
+      maxOutputTokens: 2600,
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          optimizedPrompt: { type: Type.STRING },
+          changes: { type: Type.ARRAY, items: { type: Type.STRING } },
+          rationale: { type: Type.STRING },
+          predictedImpact: { type: Type.STRING }
+        }
+      }
+    }
+  });
+
+  return safeJsonParse(response.text || '{}', {
+    optimizedPrompt: originalPrompt,
+    changes: [],
+    rationale: "Optimierung konnte nicht ausgewertet werden.",
+    predictedImpact: "Unbekannt"
+  });
+};
